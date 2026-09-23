@@ -25,11 +25,15 @@ enum RecommendedDefaults {
 
         // Context scales in coarse tiers with total RAM: more memory affords a bigger KV cache
         // budget within the --max-memory ceiling above, without assuming a specific model.
+        // Floors are tuned for agentic coding workloads (opencode/Claude Code): tool call output,
+        // file reads and multi-turn history burn through context far faster than plain chat, so
+        // 32K/64K floors that work fine for casual chat leave an agentic session compacting
+        // constantly. 256K is Splash's current model ceiling, so 80GB+ machines cap there instead
+        // of climbing further.
         let contextK: Int
         switch totalGB {
-        case ..<40: contextK = 32
-        case 40..<56: contextK = 64
-        case 56..<80: contextK = 128
+        case ..<40: contextK = 64
+        case 40..<80: contextK = 128
         default: contextK = 256
         }
 
