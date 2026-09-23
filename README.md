@@ -135,7 +135,8 @@ LICENSE                      MIT
 
 - No hay telemetría de tok/s o uso de RAM en vivo dentro de la UI (se puede ver en el log
   de consola o vía el webui). Queda como posible mejora futura.
-- `TerminalLauncher` siempre abre Terminal.app (vía AppleScript), no tu terminal por
-  defecto (Warp, iTerm, etc.) — es la única terminal garantizada scriptable sin asumir
-  qué tenés instalado.
+- `TerminalLauncher` siempre abre Terminal.app (vía un `.command` temporal + `open`, no
+  AppleScript — evita el permiso de Automation, que en una app firmada ad-hoc puede fallar
+  en silencio), no tu terminal por defecto (Warp, iTerm, etc.) — es la única terminal
+  garantizada disponible sin asumir qué tenés instalado.
 - Sin tests automatizados; es una utilidad personal de un solo usuario.
