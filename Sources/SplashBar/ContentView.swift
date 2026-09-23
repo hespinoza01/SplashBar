@@ -254,11 +254,27 @@ private struct SettingsPanel: View {
                 value: $settings.maxMemoryValue,
                 unit: $settings.maxMemoryUnit
             )
-            LabeledSizeField(
-                label: "Contexto máximo",
-                value: $settings.maxContextValue,
-                unit: $settings.maxContextUnit
-            )
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    Text("Contexto máximo").font(.system(size: 11))
+                    Spacer()
+                    Toggle("Auto", isOn: $settings.contextIsAuto)
+                        .toggleStyle(.checkbox)
+                        .font(.system(size: 10))
+                }
+                if !settings.contextIsAuto {
+                    LabeledSizeField(
+                        label: "",
+                        value: $settings.maxContextValue,
+                        unit: $settings.maxContextUnit
+                    )
+                } else {
+                    Text("Splash decide (usa el máximo del modelo cargado).")
+                        .font(.system(size: 9))
+                        .foregroundStyle(.secondary)
+                }
+            }
+
             LabeledNumericField(label: "Puerto", placeholder: "8000", text: $settings.port, maxDigits: 5)
 
             Toggle("Iniciar al iniciar sesión", isOn: $settings.launchAtLogin)

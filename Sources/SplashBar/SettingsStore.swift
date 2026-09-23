@@ -17,6 +17,11 @@ final class SettingsStore: ObservableObject {
     @Published var maxContextUnit: SizeUnit {
         didSet { UserDefaults.standard.set(maxContextUnit.rawValue, forKey: "maxContextUnit") }
     }
+    /// When true, `--max-context` is omitted entirely and Splash falls back to its own default
+    /// (the model's real maximum), instead of the value/unit fields below.
+    @Published var contextIsAuto: Bool {
+        didSet { UserDefaults.standard.set(contextIsAuto, forKey: "contextIsAuto") }
+    }
     @Published var port: String {
         didSet { UserDefaults.standard.set(port, forKey: "port") }
     }
@@ -44,6 +49,7 @@ final class SettingsStore: ObservableObject {
         maxMemoryUnit = SizeUnit(rawValue: defaults.string(forKey: "maxMemoryUnit") ?? "") ?? recommended.memoryUnit
         maxContextValue = defaults.string(forKey: "maxContextValue") ?? recommended.contextValue
         maxContextUnit = SizeUnit(rawValue: defaults.string(forKey: "maxContextUnit") ?? "") ?? recommended.contextUnit
+        contextIsAuto = defaults.bool(forKey: "contextIsAuto")
         port = defaults.string(forKey: "port") ?? "8000"
         // Source of truth is the system's registration, not our own cached flag: the user could
         // have removed it from System Settings > General > Login Items directly.
@@ -59,6 +65,7 @@ final class SettingsStore: ObservableObject {
         maxMemoryUnit = recommended.memoryUnit
         maxContextValue = recommended.contextValue
         maxContextUnit = recommended.contextUnit
+        contextIsAuto = false
     }
 
     var maxMemoryFlag: String? {
@@ -67,7 +74,7 @@ final class SettingsStore: ObservableObject {
     }
 
     var maxContextFlag: String? {
-        guard !maxContextValue.isEmpty else { return nil }
+        guard !contextIsAuto, !maxContextValue.isEmpty else { return nil }
         return "\(maxContextValue)\(maxContextUnit.rawValue)"
     }
 
