@@ -69,10 +69,10 @@ struct ContentView: View {
                 .disabled(!isServerReachable)
 
             Menu("Conectar") {
-                Button("opencode") { TerminalLauncher.run("\(SplashPaths.binary) opencode") }
-                Button("Claude Code") { TerminalLauncher.run("\(SplashPaths.binary) claude") }
-                Button("Codex") { TerminalLauncher.run("\(SplashPaths.binary) codex") }
-                Button("Hermes") { TerminalLauncher.run("\(SplashPaths.binary) hermes") }
+                Button("opencode") { connectAgent("opencode") }
+                Button("Claude Code") { connectAgent("claude") }
+                Button("Codex") { connectAgent("codex") }
+                Button("Hermes") { connectAgent("hermes") }
             }
             .disabled(!isServerReachable)
             .fixedSize()
@@ -99,6 +99,14 @@ struct ContentView: View {
     private func openWebUI() {
         guard let url = URL(string: "http://127.0.0.1:\(settings.port)") else { return }
         NSWorkspace.shared.open(url)
+    }
+
+    /// `splash claude/opencode/codex/hermes` take no --port flag — they read SPLASH_PORT (or
+    /// default to 8000) to find the running server. Exporting it inline is required whenever the
+    /// server isn't on the default port, which is normal here since SplashBar's own default is
+    /// port-configurable per the user's settings.
+    private func connectAgent(_ name: String) {
+        TerminalLauncher.run("SPLASH_PORT=\(settings.port) \(SplashPaths.binary) \(name)")
     }
 }
 
