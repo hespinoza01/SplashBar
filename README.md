@@ -28,6 +28,9 @@ agrega la capa de gestión visual que falta:
 - Memoria y contexto por defecto calculados según la RAM real del equipo (no un número fijo
   igual para todas las Macs), con botón para restaurar esos recomendados en cualquier momento.
 - Ventana "Acerca de" con versión, link al repo y al autor en GitHub, año y licencia.
+- Sincronización automática del `"context"` declarado para el provider `splash` en
+  `opencode.json`, leído del `/status` real del server — evita el error "prompt exceeds the
+  context window" cuando cambiás el contexto acá y te olvidás de actualizar opencode a mano.
 
 ## Requisitos
 
@@ -92,6 +95,14 @@ open SplashBar.app
   `~/Library/Application Support/Splash/models/` hacia el cache real de Hugging Face
   (`~/.cache/huggingface/hub/`). Borrar desde la app resuelve el symlink y borra el
   snapshot real, liberando espacio de verdad (no solo el link).
+- **Sincronización con opencode**: opencode declara un `limit.context` estático por modelo en
+  su config — no tiene forma de preguntarle a un provider `openai-compatible` genérico cuál es
+  su límite real. Splash sí lo expone gratis en `GET /status` → `maximum_context_tokens`, sin
+  necesitar una inferencia. `OpencodeSync.swift` pega ese número en el bloque `"splash"` de
+  `opencode.json` cada vez que un modelo queda listo (o se detecta uno ya corriendo), usando
+  reemplazo de texto acotado por conteo de llaves — nunca un parse+rewrite completo del JSON,
+  que reordenaría/reformatearía el resto de un archivo de config grande y editado a mano. Se
+  puede desactivar o apuntar a otra ruta desde Configuración.
 
 ## Estructura
 
@@ -110,6 +121,7 @@ Sources/SplashBar/
   RecommendedDefaults.swift  calcula memoria/contexto sugeridos según la RAM del equipo
   AppInfo.swift              versión, build, URLs de repo/autor para la ventana Acerca de
   AboutView.swift            ventana "Acerca de SplashBar"
+  OpencodeSync.swift         sincroniza el contexto real con opencode.json
 
 Assets/
   icon-1024.png              fuente maestra del ícono (con alpha real)

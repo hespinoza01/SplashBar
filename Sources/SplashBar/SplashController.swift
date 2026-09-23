@@ -67,6 +67,7 @@ final class SplashController: ObservableObject {
         }
         state = .ready(model: modelId, context: "?")
         activeConfig = (port: settings.port, maxMemory: nil, maxContext: nil)
+        await OpencodeSync.syncFromRunningServer(port: settings.port)
     }
 
     // MARK: - Load (serve) a model
@@ -137,6 +138,8 @@ final class SplashController: ObservableObject {
             } else if line.contains("Ready ·") {
                 let context = extractField(line, marker: "context ") ?? "?"
                 state = .ready(model: model, context: context)
+                let port = settings.port
+                Task { await OpencodeSync.syncFromRunningServer(port: port) }
             } else if line.contains("Done ·") {
                 lastMetrics = line
             } else if line.lowercased().contains("traceback") || line.lowercased().contains("error:") {

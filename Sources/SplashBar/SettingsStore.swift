@@ -26,6 +26,12 @@ final class SettingsStore: ObservableObject {
             LoginItemManager.setEnabled(launchAtLogin)
         }
     }
+    @Published var opencodeSyncEnabled: Bool {
+        didSet { OpencodeSync.setEnabled(opencodeSyncEnabled) }
+    }
+    @Published var opencodeConfigPath: String {
+        didSet { OpencodeSync.setConfigPath(opencodeConfigPath) }
+    }
 
     /// Computed once per launch from this machine's real RAM — not a hardcoded number — so the
     /// same app suggests different values on a 36GB minimum-spec Mac vs. a 64GB/128GB one.
@@ -42,6 +48,8 @@ final class SettingsStore: ObservableObject {
         // Source of truth is the system's registration, not our own cached flag: the user could
         // have removed it from System Settings > General > Login Items directly.
         launchAtLogin = LoginItemManager.isEnabled
+        opencodeSyncEnabled = OpencodeSync.isEnabled
+        opencodeConfigPath = OpencodeSync.configPath
     }
 
     /// Resets memory/context back to what `RecommendedDefaults` computes for this machine.

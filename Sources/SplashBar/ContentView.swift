@@ -266,6 +266,25 @@ private struct SettingsPanel: View {
                 .toggleStyle(.switch)
                 .controlSize(.mini)
 
+            Divider()
+
+            Toggle("Sincronizar contexto con opencode", isOn: $settings.opencodeSyncEnabled)
+                .font(.system(size: 11))
+                .toggleStyle(.switch)
+                .controlSize(.mini)
+
+            if settings.opencodeSyncEnabled {
+                TextField("~/.config/opencode/opencode.json", text: $settings.opencodeConfigPath)
+                    .textFieldStyle(.roundedBorder)
+                    .font(.system(size: 9))
+
+                Text("Al cargar un modelo, actualiza el \"context\" declarado en el provider \"splash\" de opencode.json para que coincida con el límite real del server — evita el error \"prompt exceeds the context window\" cuando cambiás el contexto acá.")
+                    .font(.system(size: 9))
+                    .foregroundStyle(.secondary)
+            }
+
+            Divider()
+
             HStack {
                 Text("Tu Mac: \(settings.recommended.totalRAMGB)GB RAM")
                     .font(.system(size: 9))
