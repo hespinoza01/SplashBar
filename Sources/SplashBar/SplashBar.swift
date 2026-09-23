@@ -20,5 +20,10 @@ struct SplashBarApp: App {
                 .environmentObject(modelsVM)
         }
         .menuBarExtraStyle(.window)
+
+        Window("Acerca de SplashBar", id: "about") {
+            AboutView()
+        }
+        .windowResizability(.contentSize)
     }
 }

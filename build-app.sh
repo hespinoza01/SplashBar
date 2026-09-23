@@ -8,9 +8,10 @@ APP="SplashBar.app"
 CONTENTS="$APP/Contents"
 
 rm -rf "$APP"
-mkdir -p "$CONTENTS/MacOS"
+mkdir -p "$CONTENTS/MacOS" "$CONTENTS/Resources"
 cp .build/release/SplashBar "$CONTENTS/MacOS/SplashBar"
 cp Info.plist "$CONTENTS/Info.plist"
+cp AppIcon.icns "$CONTENTS/Resources/AppIcon.icns"
 
 codesign --force --deep --sign - "$APP"
 

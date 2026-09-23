@@ -27,24 +27,30 @@ final class SettingsStore: ObservableObject {
         }
     }
 
-    /// Defaults tuned for a machine with headroom similar to a 48GB M4 Max already running a
-    /// normal dev workload (IDEs, browser, opencode): leaves room for everything else instead
-    /// of letting Splash claim the whole unified memory pool or the full 256K context by default.
-    static let defaultMaxMemoryValue = "28"
-    static let defaultMaxMemoryUnit = SizeUnit.g
-    static let defaultMaxContextValue = "64"
-    static let defaultMaxContextUnit = SizeUnit.k
+    /// Computed once per launch from this machine's real RAM — not a hardcoded number — so the
+    /// same app suggests different values on a 36GB minimum-spec Mac vs. a 64GB/128GB one.
+    let recommended = RecommendedDefaults.compute()
 
     init() {
         let defaults = UserDefaults.standard
-        maxMemoryValue = defaults.string(forKey: "maxMemoryValue") ?? Self.defaultMaxMemoryValue
-        maxMemoryUnit = SizeUnit(rawValue: defaults.string(forKey: "maxMemoryUnit") ?? "") ?? Self.defaultMaxMemoryUnit
-        maxContextValue = defaults.string(forKey: "maxContextValue") ?? Self.defaultMaxContextValue
-        maxContextUnit = SizeUnit(rawValue: defaults.string(forKey: "maxContextUnit") ?? "") ?? Self.defaultMaxContextUnit
+        let recommended = RecommendedDefaults.compute()
+        maxMemoryValue = defaults.string(forKey: "maxMemoryValue") ?? recommended.memoryValue
+        maxMemoryUnit = SizeUnit(rawValue: defaults.string(forKey: "maxMemoryUnit") ?? "") ?? recommended.memoryUnit
+        maxContextValue = defaults.string(forKey: "maxContextValue") ?? recommended.contextValue
+        maxContextUnit = SizeUnit(rawValue: defaults.string(forKey: "maxContextUnit") ?? "") ?? recommended.contextUnit
         port = defaults.string(forKey: "port") ?? "8000"
         // Source of truth is the system's registration, not our own cached flag: the user could
         // have removed it from System Settings > General > Login Items directly.
         launchAtLogin = LoginItemManager.isEnabled
+    }
+
+    /// Resets memory/context back to what `RecommendedDefaults` computes for this machine.
+    /// Port and login-item are left untouched — those aren't resource-dependent.
+    func resetToRecommendedDefaults() {
+        maxMemoryValue = recommended.memoryValue
+        maxMemoryUnit = recommended.memoryUnit
+        maxContextValue = recommended.contextValue
+        maxContextUnit = recommended.contextUnit
     }
 
     var maxMemoryFlag: String? {

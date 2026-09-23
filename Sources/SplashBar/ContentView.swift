@@ -4,6 +4,7 @@ struct ContentView: View {
     @EnvironmentObject var controller: SplashController
     @EnvironmentObject var settings: SettingsStore
     @EnvironmentObject var modelsVM: ModelsViewModel
+    @Environment(\.openWindow) private var openWindow
     @State private var showSettings = false
 
     var body: some View {
@@ -77,6 +78,15 @@ struct ContentView: View {
             .fixedSize()
 
             Spacer()
+
+            Button {
+                openWindow(id: "about")
+                NSApp.activate(ignoringOtherApps: true)
+            } label: {
+                Image(systemName: "info.circle")
+            }
+            .buttonStyle(.plain)
+
             Button("Salir") { NSApplication.shared.terminate(nil) }
         }
     }
@@ -256,7 +266,19 @@ private struct SettingsPanel: View {
                 .toggleStyle(.switch)
                 .controlSize(.mini)
 
-            Text("Defaults prudentes para 48GB compartidos con IDEs/apps. Cambios aplican en la próxima carga.")
+            HStack {
+                Text("Tu Mac: \(settings.recommended.totalRAMGB)GB RAM")
+                    .font(.system(size: 9))
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Button("Restaurar recomendados") {
+                    settings.resetToRecommendedDefaults()
+                }
+                .font(.system(size: 9))
+                .controlSize(.mini)
+            }
+
+            Text("Recomendado para tu equipo: \(settings.recommended.memoryValue)\(settings.recommended.memoryUnit.rawValue) memoria / \(settings.recommended.contextValue)\(settings.recommended.contextUnit.rawValue) contexto. Cambios aplican en la próxima carga.")
                 .font(.system(size: 9))
                 .foregroundStyle(.secondary)
         }

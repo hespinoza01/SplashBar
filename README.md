@@ -25,6 +25,9 @@ agrega la capa de gestión visual que falta:
   — cada uno abre en su propia ventana de Terminal, corriendo el wrapper `splash <agente>`.
 - Abrir el webui de chat de Splash con un click.
 - Iniciar con el login (macOS `SMAppService`, sin helper app aparte).
+- Memoria y contexto por defecto calculados según la RAM real del equipo (no un número fijo
+  igual para todas las Macs), con botón para restaurar esos recomendados en cualquier momento.
+- Ventana "Acerca de" con versión, link al repo y al autor en GitHub, año y licencia.
 
 ## Requisitos
 
@@ -62,12 +65,15 @@ open SplashBar.app
    y arranca `splash serve` con la memoria/contexto configurados.
 4. El modelo activo se resalta con una card verde mostrando puerto, memoria y contexto
    reales con los que se lanzó.
-5. **Configuración** (desplegable): límite de memoria Metal, contexto máximo, puerto,
-   toggle de inicio automático. Los valores por defecto (28G de memoria, 64K de contexto)
-   están pensados para convivir con un entorno de desarrollo normal (IDEs, navegador,
-   opencode) en una Mac de 48GB — no acaparan toda la RAM disponible.
+5. **Configuración** (desplegable): límite de memoria Metal, contexto máximo (numérico +
+   selector K/M/G), puerto, toggle de inicio automático, y botón "Restaurar recomendados".
+   Los valores sugeridos se calculan de la RAM real del equipo (`RecommendedDefaults.swift`):
+   se reserva el mayor entre 16GB o 30% del total para macOS + apps, el resto queda
+   disponible para Splash; el contexto escala en tramos (32K/64K/128K/256K) según cuánta RAM
+   total hay. En una Mac de 48GB da ~32G/64K; en una de 64GB, ~44G/128K.
 6. **Conectar** abre una terminal con el agente elegido ya apuntando al server local.
 7. **WebUI** abre el chat embebido de Splash en el navegador.
+8. El botón ⓘ del footer abre "Acerca de" con versión, link al repositorio y al autor.
 
 ## Notas de implementación
 
@@ -101,6 +107,16 @@ Sources/SplashBar/
   SplashPaths.swift          resuelve rutas de Homebrew/Splash independiente del prefix
   TerminalLauncher.swift     abre Terminal.app y corre un comando (para "Conectar")
   LoginItemManager.swift     wrapper de SMAppService para iniciar con el login
+  RecommendedDefaults.swift  calcula memoria/contexto sugeridos según la RAM del equipo
+  AppInfo.swift              versión, build, URLs de repo/autor para la ventana Acerca de
+  AboutView.swift            ventana "Acerca de SplashBar"
+
+Assets/
+  icon-1024.png              fuente maestra del ícono (con alpha real)
+  README.md                  cómo se generó y cómo regenerar el .icns
+
+AppIcon.icns                 ícono compilado, referenciado desde Info.plist
+LICENSE                      MIT
 ```
 
 ## Limitaciones conocidas
